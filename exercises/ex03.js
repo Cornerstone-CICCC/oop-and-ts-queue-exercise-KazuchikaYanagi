@@ -4,16 +4,45 @@
 // Remove people from the queue if their total late fee is $0 (all books were returned on time).
 // Make sure to implement FIFO (First-In, First-Out)
 
-const Queue = require('../lib/Queue')
+const Queue = require("../lib/Queue");
 
 function processReturns(queue) {
   // your code here
+  const tempQueue = new Queue();
+
+  while (!queue.isEmpty()) {
+    const tempReturn = queue.dequeue();
+
+    for (let i = 0; i < tempReturn.books.length; i++) {
+      if (
+        tempReturn.books[i].daysLate > 0 &&
+        !tempQueue.items.includes(tempReturn)
+      )
+        tempQueue.enqueue(tempReturn);
+    }
+  }
+
+  while (!tempQueue.isEmpty()) {
+    queue.enqueue(tempQueue.dequeue());
+  }
 }
 
 const returns = new Queue();
-returns.push({ name: "Alice", books: [{ title: "Book 1", daysLate: 0 }, { title: "Book 2", daysLate: 5 }] });
-returns.push({ name: "Bob", books: [{ title: "Book 3", daysLate: 0 }] });
-returns.push({ name: "Charlie", books: [{ title: "Book 4", daysLate: 2 }, { title: "Book 5", daysLate: 4 }] });
+returns.enqueue({
+  name: "Alice",
+  books: [
+    { title: "Book 1", daysLate: 0 },
+    { title: "Book 2", daysLate: 5 },
+  ],
+});
+returns.enqueue({ name: "Bob", books: [{ title: "Book 3", daysLate: 0 }] });
+returns.enqueue({
+  name: "Charlie",
+  books: [
+    { title: "Book 4", daysLate: 2 },
+    { title: "Book 5", daysLate: 4 },
+  ],
+});
 
 processReturns(returns);
 console.log(returns.printQueue());
